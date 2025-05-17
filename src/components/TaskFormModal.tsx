@@ -9,9 +9,11 @@ import { useForm } from "react-hook-form";
 import { useAppDispatch } from "../hooks";
 import { showSnackbar } from "../lib/redux/features/snackbarSlice";
 import { createTask } from "../services/task.service";
+import { useState } from "react";
 
 interface ComponentProps {
   onClose: () => void;
+  onSuccessCreatedTask: () => void;
 }
 
 type FormValues = {
@@ -23,9 +25,10 @@ type FormValues = {
   label_color: string;
 };
 
-const TaskFormModal = ({ onClose }: ComponentProps) => {
+const TaskFormModal = ({ onClose, onSuccessCreatedTask }: ComponentProps) => {
   const { register, handleSubmit, reset, watch, control } = useForm<FormValues>();
   const dispatch = useAppDispatch();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const disabledSubmitButton = () => Boolean(
     watch('title') == '' ||
@@ -37,6 +40,7 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      setIsLoading(true);
       const response = await createTask(data);
       if (response.status == 'OK' && response.data) {
         dispatch(showSnackbar({
@@ -44,13 +48,15 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
           message: 'Task created successfully'
         }))
         reset();
-        onClose();
+        onSuccessCreatedTask();
       }
     } catch (error) {
       dispatch(showSnackbar({
         type: 'error',
         message: error
       }))
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -128,6 +134,7 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
                 id="taskFormSubmitButton"
                 htmlType="submit"
                 label="Submit"
+                isLoading={isLoading}
                 disabled={disabledSubmitButton()}
               />
             </div>
