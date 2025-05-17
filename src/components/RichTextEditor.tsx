@@ -1,15 +1,16 @@
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import styled from 'styled-components';
+import { Controller } from 'react-hook-form';
 
 interface ComponentProps {
   id: string;
   label: string;
   isRequired: boolean;
   placeholder: string;
-  value: string;
   isShowLabel?: boolean;
-  onChange: (value: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: any;
 }
 
 const CustomStyleReactQuill = styled(ReactQuill)`
@@ -39,7 +40,7 @@ const CustomStyleReactQuill = styled(ReactQuill)`
   }
 `;
 
-const RichTextEditor = ({ id, label, isRequired, placeholder, value, isShowLabel = true, onChange }: ComponentProps) => {
+const RichTextEditor = ({ id, label, isRequired, placeholder, isShowLabel = true, control }: ComponentProps) => {
   return (
     <div className="w-full h-auto flex flex-col items-start justify-start gap-[4px]">
       {isShowLabel && (
@@ -50,11 +51,17 @@ const RichTextEditor = ({ id, label, isRequired, placeholder, value, isShowLabel
           {label} {isRequired && <span className="text-red-500">*</span>}
         </label>
       )}
-      <CustomStyleReactQuill
-        id={id}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
+
+      <Controller
+        name={id}
+        control={control}
+        render={({ field }) => (
+          <CustomStyleReactQuill
+            placeholder={placeholder}
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
       />
     </div>
   )
