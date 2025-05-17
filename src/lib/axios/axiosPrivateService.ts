@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getDataFromLocalStorage } from "../crypto-js";
 
 const axiosPrivateService = axios.create({
   baseURL: '/api',
@@ -7,7 +8,7 @@ const axiosPrivateService = axios.create({
 
 axiosPrivateService.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = getDataFromLocalStorage('access_token');
 
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
