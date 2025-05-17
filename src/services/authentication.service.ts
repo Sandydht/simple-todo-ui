@@ -25,7 +25,10 @@ export const loginAccountService = (payload: { username: string; password: strin
   })
 }
 
-export const logoutAccountService = () => {
+export const logoutAccountService = (): Promise<{
+  status: string;
+  message: string;
+}> => {
   return new Promise((resolve, reject) => {
     axiosPrivateService
       .post('/authentication/logout')

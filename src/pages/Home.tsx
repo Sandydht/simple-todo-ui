@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
-import { gerProfileService } from "../services/authentication.service"
+import { gerProfileService, logoutAccountService } from "../services/authentication.service"
 import { useAppDispatch } from "../hooks"
 import { resetUserProfileData, setUserProfileData } from "../lib/redux/features/authenticationSlice";
 import { showSnackbar } from "../lib/redux/features/snackbarSlice";
 import ExitAppIcon from '../assets/exit_to_app_24px_outlined.svg';
 import TaskItem from "../components/TaskItem";
 import AddIcon from '../assets/add_24px_outlined.svg';
+import { hideConfirmationModalBox, setConfirmationModalBoxLoading, showConfirmationModalBox } from "../lib/redux/features/modalBoxSlice";
+import { useHistory } from "react-router-dom";
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -58,6 +60,7 @@ const Home = () => {
       is_done: true
     },
   ])
+  const history = useHistory();
 
   useEffect(() => {
     fetchUserProfileData()
@@ -95,6 +98,38 @@ const Home = () => {
     console.log('taskId: ', taskId)
   }
 
+  const handleLogout = () => {
+    dispatch(showConfirmationModalBox({
+      title: 'Logout Confirmation',
+      description: 'Are you sure you want to exit the application?',
+      onCancel: () => {
+        dispatch(hideConfirmationModalBox());
+      },
+      onConfirm: () => {
+        handleConfirmLogout();
+      }
+    }))
+  }
+
+  const handleConfirmLogout = async () => {
+    try {
+      dispatch(setConfirmationModalBoxLoading(true));
+      const response = await logoutAccountService();
+      if (response.status == 'OK') {
+        localStorage.clear();
+        dispatch(hideConfirmationModalBox());
+        history.push("/login");
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      dispatch(setConfirmationModalBoxLoading(false));
+    }
+  }
+
   return (
     <div className="w-full h-auto min-h-screen bg-linear-to-t from-sky-500 to-indigo-500">
       <div className="w-full h-auto bg-white sticky top-0 z-40 flex items-center justify-center px-[20px] py-[10px] shadow-lg">
@@ -105,6 +140,7 @@ const Home = () => {
           <button
             type="button"
             className="w-auto h-auto cursor-pointer focus-within:outline-0"
+            onClick={handleLogout}
           >
             <img
               src={ExitAppIcon}
@@ -127,6 +163,7 @@ const Home = () => {
           <div className="w-full h-auto flex flex-col items-start justify-start gap-[16px]">
             {taskData.map((item) => (
               <TaskItem
+                key={item.id}
                 data={item}
                 onClick={handleClickDetail}
               />
