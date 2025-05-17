@@ -9,62 +9,29 @@ import AddIcon from '../assets/add_24px_outlined.svg';
 import { hideConfirmationModalBox, setConfirmationModalBoxLoading, showConfirmationModalBox } from "../lib/redux/features/modalBoxSlice";
 import { useHistory } from "react-router-dom";
 import TaskFormModal from "../components/TaskFormModal";
+import { getTaskList } from "../services/task.service";
 
 const Home = () => {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isShowTaskFormModal, setIsShowTaskFormModal] = useState<boolean>(false);
   const [isShowTaskDetailModal, setIsShowTaskDetailModal] = useState<boolean>(false);
-  const [taskData] = useState<{
+  const [taskData, setTaskData] = useState<{
     id: number;
     title: string;
     description: string;
-    label_color: string;
     start_date: string;
     end_date: string;
+    label_color: string;
     is_done: boolean;
-  }[]>([
-    {
-      id: 1,
-      title: 'Test task 1',
-      description: 'This is task 1',
-      label_color: '#62748e',
-      start_date: '',
-      end_date: '',
-      is_done: false
-    },
-    {
-      id: 2,
-      title: 'Test task 2',
-      description: 'This is task 2',
-      label_color: '#00c951',
-      start_date: '',
-      end_date: '',
-      is_done: false
-    },
-    {
-      id: 3,
-      title: 'Test task 3',
-      description: 'This is task 3',
-      label_color: '#fb2c36',
-      start_date: '',
-      end_date: '',
-      is_done: false
-    },
-    {
-      id: 4,
-      title: 'Test task 4',
-      description: 'This is task 4',
-      label_color: '#2b7fff',
-      start_date: '',
-      end_date: '',
-      is_done: true
-    },
-  ])
+    created_at: string;
+    updated_at: string;
+  }[]>([])
   const history = useHistory();
 
   useEffect(() => {
     fetchUserProfileData()
+    fetchTaskList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -131,11 +98,34 @@ const Home = () => {
     }
   }
 
+  const fetchTaskList = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getTaskList();
+      if (response.status == 'OK' && response.data) {
+        setTaskData(response.data);
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSuccessCreatedTask = () => {
+    fetchTaskList()
+    setIsShowTaskFormModal(false)
+  }
+
   return (
     <>
       {isShowTaskFormModal && (
-        <TaskFormModal 
+        <TaskFormModal
           onClose={() => setIsShowTaskFormModal(false)}
+          onSuccessCreatedTask={handleSuccessCreatedTask}
         />
       )}
 
