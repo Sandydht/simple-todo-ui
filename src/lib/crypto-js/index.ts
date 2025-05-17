@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = import.meta.env.VITE_CRYPTO_SECRET_KEY; // simpan di env untuk keamanan lebih
+const SECRET_KEY = import.meta.env.VITE_CRYPTO_SECRET_KEY;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const encryptData = (data: any) => {

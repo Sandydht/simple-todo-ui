@@ -11,7 +11,7 @@ const snackbarSlice = createSlice({
     showSnackbar: (state, action) => {
       state.show = true;
       state.type = action.payload.type;
-      state.message = action.payload.message;
+      state.message = typeof action.payload.message == 'string' ? action.payload.message : 'Unexpected error occurred';
     },
     hideSnackbar: (state) => {
       state.show = false;
