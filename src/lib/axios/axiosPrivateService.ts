@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getDataFromLocalStorage } from "../crypto-js";
+import { getErrorMessage } from "./axiosHelper";
 
 const axiosPrivateService = axios.create({
   baseURL: '/api',
@@ -17,7 +18,8 @@ axiosPrivateService.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    const errorMessage = getErrorMessage(error);
+    return Promise.reject(errorMessage);
   }
 )
 
@@ -30,7 +32,8 @@ axiosPrivateService.interceptors.response.use(
       window.location.href = '/login';
     }
 
-    return Promise.reject(error);
+    const errorMessage = getErrorMessage(error);
+    return Promise.reject(errorMessage);
   }
 )
 

@@ -12,7 +12,12 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['modalBox/showConfirmationModalBox', 'modalBox/hideConfirmationModalBox'],
+        ignoredActions: [
+          'modalBox/showConfirmationModalBox', 
+          'modalBox/hideConfirmationModalBox',
+          'snackbar/showSnackbar',
+          'snackbar/hideSnackbar',
+        ],
         ignoreState: true
       }
     });

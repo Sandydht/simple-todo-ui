@@ -17,7 +17,7 @@ const Snackbar = ({ type = 'success', message }: ComponentProps) => {
 
   return (
     <div className={classNames(
-      'w-full max-w-[500px] h-auto px-[10px] py-[5px] rounded-[6px] flex items-center justify-between gap-[10px] fixed top-[35px] left-[50%] -translate-1/2 border-[2px]',
+      'w-full max-w-[500px] h-auto px-[10px] py-[5px] rounded-[6px] flex items-center justify-between gap-[10px] fixed top-[35px] left-[50%] -translate-1/2 border-[2px] z-50',
       {
         'bg-green-100 border-green-400 text-green-400': type == 'success',
         'bg-red-100 border-red-400 text-red-400': type == 'error'

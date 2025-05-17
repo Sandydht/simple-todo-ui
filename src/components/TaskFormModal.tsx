@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Input from "./Input";
 import RichTextEditor from "./RichTextEditor";
 import DatePicker from "./DatePicker";
@@ -6,58 +5,57 @@ import ColorPicker from "./ColorPicker";
 import Checkbox from "./Checkbox";
 import Button from "./Button";
 import CloseIcon from '../assets/close_24px_outlined.svg';
+import { useForm } from "react-hook-form";
+import { useAppDispatch } from "../hooks";
+import { showSnackbar } from "../lib/redux/features/snackbarSlice";
+import { createTask } from "../services/task.service";
 
 interface ComponentProps {
   onClose: () => void;
 }
 
+type FormValues = {
+  title: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  is_done: boolean;
+  label_color: string;
+};
+
 const TaskFormModal = ({ onClose }: ComponentProps) => {
-  const [formData, setFormData] = useState<{
-    title: string;
-    description: string;
-    start_date: string;
-    end_date: string;
-    label_color: string;
-    is_done: boolean;
-  }>({
-    title: '',
-    description: '',
-    start_date: '',
-    end_date: '',
-    label_color: '',
-    is_done: false
-  })
+  const { register, handleSubmit, reset, watch, control } = useForm<FormValues>();
+  const dispatch = useAppDispatch();
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, checked } = event.target;
+  const disabledSubmitButton = () => Boolean(
+    watch('title') == '' ||
+    watch('description') == '' ||
+    watch('start_date') == '' ||
+    watch('end_date') == '' ||
+    watch('label_color') == ''
+  )
 
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: name == 'is_done' ? checked : value
-    }))
-  }
-
-  const handleRichTextEditor = (value: string) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      description: value
-    }))
-  }
-
-  const handleSelectColor = (value: string) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      label_color: value
-    }))
-  }
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('formData: ', formData)
+  const onSubmit = async (data: FormValues) => {
+    try {
+      const response = await createTask(data);
+      if (response.status == 'OK' && response.data) {
+        dispatch(showSnackbar({
+          type: 'success',
+          message: 'Task created successfully'
+        }))
+        reset();
+        onClose();
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    }
   }
 
   return (
-    <div className="fixed left-0 top-0 right-0 bottom-0 z-50">
+    <div className="fixed left-0 top-0 right-0 bottom-0 z-40">
       <div className="absolute left-0 top-0 right-0 bottom-0 bg-black opacity-60"></div>
 
       <div className="absolute left-0 top-0 right-0 bottom-0 flex items-start justify-center p-[25px] overflow-y-auto">
@@ -83,55 +81,46 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
           </div>
           <form
             className="w-full h-auto flex flex-col items-start justify-start gap-[16px]"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <div className="w-full h-auto flex flex-col items-start justify-start gap-[16px]">
               <Input
-                id="title"
-                label="Title"
+                id={"title"}
+                label={"Title"}
                 isRequired={true}
                 placeholder="Meeting..."
-                value={formData.title}
-                onChange={handleInputChange}
+                register={register}
               />
               <RichTextEditor
                 id="description"
                 label="Description"
                 isRequired={true}
                 placeholder="Meeting with client..."
-                value={formData.description}
-                onChange={handleRichTextEditor}
+                control={control}
               />
               <DatePicker
                 id="start_date"
-                name="start_date"
                 label="Start Date"
                 isRequired={true}
-                value={formData.start_date}
-                onChange={handleInputChange}
+                register={register}
               />
               <DatePicker
                 id="end_date"
-                name="end_date"
                 label="End Date"
                 isRequired={true}
-                value={formData.end_date}
-                onChange={handleInputChange}
+                register={register}
               />
               <ColorPicker
                 id="label_color"
                 label="Tag Label"
                 isRequired={true}
-                value={formData.label_color}
-                selectColor={handleSelectColor}
+                control={control}
               />
               <Checkbox
                 id="is_done"
-                name="is_done"
                 label="Is Done"
                 isRequired={true}
-                checked={formData.is_done}
-                onChange={handleInputChange}
+                register={register}
               />
             </div>
             <div className="w-full h-auto">
@@ -139,6 +128,7 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
                 id="taskFormSubmitButton"
                 htmlType="submit"
                 label="Submit"
+                disabled={disabledSubmitButton()}
               />
             </div>
           </form>

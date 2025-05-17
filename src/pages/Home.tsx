@@ -8,6 +8,7 @@ import TaskItem from "../components/TaskItem";
 import AddIcon from '../assets/add_24px_outlined.svg';
 import { hideConfirmationModalBox, setConfirmationModalBoxLoading, showConfirmationModalBox } from "../lib/redux/features/modalBoxSlice";
 import { useHistory } from "react-router-dom";
+import TaskFormModal from "../components/TaskFormModal";
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -131,59 +132,67 @@ const Home = () => {
   }
 
   return (
-    <div className="w-full h-auto min-h-screen bg-linear-to-t from-sky-500 to-indigo-500">
-      <div className="w-full h-auto bg-white sticky top-0 z-40 flex items-center justify-center px-[20px] py-[10px] shadow-lg">
-        <div className="w-full h-auto max-w-[1024px] flex items-center justify-between px-[20px] py-[10px]">
-          <p className="text-left text-[24px] leading-[32px] text-[#000000] font-semibold">
-            Simple TODO
-          </p>
-          <button
-            type="button"
-            className="w-auto h-auto cursor-pointer focus-within:outline-0"
-            onClick={handleLogout}
-          >
-            <img
-              src={ExitAppIcon}
-              alt="Exit app icon"
-              className="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px]"
-              loading="lazy"
-            />
-          </button>
-        </div>
-      </div>
-
-      <div className="w-full h-auto flex flex-col items-start justify-start gap-[25px] max-w-[728px] mx-auto p-[25px]">
-        <div className="w-full h-auto flex flex-col items-start justify-start gap-[24px] rounded-[16px] bg-white p-[25px] shadow-lg border-[1px] border-gray-400">
-          <div className="w-full h-auto">
-            <p className="text-left text-[24px] leading-[32px] text-[#000000] font-semibold">
-              Task List
-            </p>
-          </div>
-
-          <div className="w-full h-auto flex flex-col items-start justify-start gap-[16px]">
-            {taskData.map((item) => (
-              <TaskItem
-                key={item.id}
-                data={item}
-                onClick={handleClickDetail}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className="w-full h-full min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] rounded-full bg-white fixed bottom-[25px] right-[25px] shadow-lg border-[1px] border-gray-400 cursor-pointer flex items-center justify-center"
-        onClick={() => setIsShowTaskFormModal(!isShowTaskFormModal)}
-      >
-        <img
-          src={AddIcon}
-          alt="Add icon"
-          loading="lazy"
+    <>
+      {isShowTaskFormModal && (
+        <TaskFormModal 
+          onClose={() => setIsShowTaskFormModal(false)}
         />
-      </button>
-    </div>
+      )}
+
+      <div className="w-full h-auto min-h-screen bg-linear-to-t from-sky-500 to-indigo-500">
+        <div className="w-full h-auto bg-white flex items-center justify-center px-[20px] py-[10px] shadow-lg">
+          <div className="w-full h-auto max-w-[1024px] flex items-center justify-between px-[20px] py-[10px]">
+            <p className="text-left text-[24px] leading-[32px] text-[#000000] font-semibold">
+              Simple TODO
+            </p>
+            <button
+              type="button"
+              className="w-auto h-auto cursor-pointer focus-within:outline-0"
+              onClick={handleLogout}
+            >
+              <img
+                src={ExitAppIcon}
+                alt="Exit app icon"
+                className="w-full h-full min-w-[24px] max-w-[24px] min-h-[24px] max-h-[24px]"
+                loading="lazy"
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className="w-full h-auto flex flex-col items-start justify-start gap-[25px] max-w-[728px] mx-auto p-[25px]">
+          <div className="w-full h-auto flex flex-col items-start justify-start gap-[24px] rounded-[16px] bg-white p-[25px] shadow-lg border-[1px] border-gray-400">
+            <div className="w-full h-auto">
+              <p className="text-left text-[24px] leading-[32px] text-[#000000] font-semibold">
+                Task List
+              </p>
+            </div>
+
+            <div className="w-full h-auto flex flex-col items-start justify-start gap-[16px]">
+              {taskData.map((item) => (
+                <TaskItem
+                  key={item.id}
+                  data={item}
+                  onClick={handleClickDetail}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="w-full h-full min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] rounded-full bg-white fixed bottom-[25px] right-[25px] shadow-lg border-[1px] border-gray-400 cursor-pointer flex items-center justify-center"
+          onClick={() => setIsShowTaskFormModal(!isShowTaskFormModal)}
+        >
+          <img
+            src={AddIcon}
+            alt="Add icon"
+            loading="lazy"
+          />
+        </button>
+      </div>
+    </>
   )
 }
 
