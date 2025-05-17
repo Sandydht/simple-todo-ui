@@ -88,7 +88,6 @@ const TaskFormModal = ({ onClose }: ComponentProps) => {
             <div className="w-full h-auto flex flex-col items-start justify-start gap-[16px]">
               <Input
                 id="title"
-                name="title"
                 label="Title"
                 isRequired={true}
                 placeholder="Meeting..."
