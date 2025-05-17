@@ -34,10 +34,17 @@ export const logoutAccountService = () => {
   })
 }
 
-export const gerProfileService = () => {
+export const gerProfileService = (): Promise<{
+  status: string;
+  data: {
+    id: number;
+    username: string;
+    image_url: string;
+  };
+}> => {
   return new Promise((resolve, reject) => {
     axiosPrivateService
-      .post('/authentication/profile')
+      .get('/authentication/profile')
       .then((response) => resolve(response.data))
       .catch((error) => reject(error))
   })

@@ -9,15 +9,16 @@ import Register from "./pages/Register";
 import { useAppDispatch, useAppSelector } from "./hooks";
 import Snackbar from "./components/Snackbar";
 import { useEffect } from "react";
-import { hideSnackbar } from "./lib/redux/features/snackbarSlice";
+import { hideSnackbar, snackbarData } from "./lib/redux/features/snackbarSlice";
+import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
-  const snackbarData = useAppSelector((state) => state.snackbar);
+  const snackbar = useAppSelector(snackbarData);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     let snackbarTimeout = null;
-    if (snackbarData.show) {
+    if (snackbar.show) {
       snackbarTimeout = setTimeout(() => {
         dispatch(hideSnackbar())
       }, 3000)
@@ -28,14 +29,14 @@ const App = () => {
         clearTimeout(snackbarTimeout)
       }
     }
-  }, [dispatch, snackbarData.show])
+  }, [dispatch, snackbar.show])
 
   return (
     <>
-      {snackbarData.show && (
+      {snackbar.show && (
         <Snackbar
-          type={snackbarData.type}
-          message={snackbarData.message}
+          type={snackbar.type}
+          message={snackbar.message}
         />
       )}
 
@@ -47,9 +48,10 @@ const App = () => {
           <Route path="/login">
             <Login />
           </Route>
-          <Route path="/">
-            <Home />
-          </Route>
+          <PrivateRoute 
+            path={"/"}
+            component={Home}
+          />
         </Switch>
       </Router>
     </>
