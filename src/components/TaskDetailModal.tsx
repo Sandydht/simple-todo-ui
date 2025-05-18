@@ -3,19 +3,29 @@ import NotesIcon from '../assets/notes_24px_outlined.svg';
 import Button from './Button';
 import CalendarIcon from '../assets/calendar_today_24px_outlined.svg';
 import LabelIcon from '../assets/label_24px_outlined.svg';
-import { useState } from 'react';
-import RichTextEditor from './RichTextEditor';
-import DatePicker from './DatePicker';
+import { useEffect, useState } from 'react';
+import type { TaskData } from '../pages/Home';
+import DOMPurify from 'dompurify';
+import classNames from 'classnames'
 
 interface ComponentProps {
+  taskData: TaskData | null;
   onClose: () => void;
 }
 
-const TaskDetailModal = ({ onClose }: ComponentProps) => {
+const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
   const [isEditTitle, setIsEditTitle] = useState<boolean>(false);
   const [isEditDescription, setIsEditDescription] = useState<boolean>(false);
   const [isEditDates, setIsEditDates] = useState<boolean>(false);
   const [isEditLabel, setIsEditLabel] = useState<boolean>(false);
+  const [cleanDescriptionHtml, setCleanDescriptionHtml] = useState<string | TrustedHTML>();
+
+  useEffect(() => {
+    if (taskData?.description) {
+      const cleanHtml = DOMPurify.sanitize(taskData?.description)
+      setCleanDescriptionHtml(cleanHtml)
+    }
+  }, [taskData])
 
   return (
     <div className="fixed left-0 top-0 right-0 bottom-0 z-50">
@@ -38,7 +48,7 @@ const TaskDetailModal = ({ onClose }: ComponentProps) => {
                   onClick={() => setIsEditTitle(true)}
                 >
                   <p className='text-left text-[24px] leading-[32px] text-[#000000] font-semibold'>
-                    Task detail modal box
+                    {taskData?.title}
                   </p>
                 </div>
               )}
@@ -104,42 +114,18 @@ const TaskDetailModal = ({ onClose }: ComponentProps) => {
 
             {!isEditDescription && (
               <div className='w-full h-auto bg-gray-200 p-[16px]'>
-                <p className='text-left text-[16px] leading-[24px] text-[#000000]'>
-                  Description
-                </p>
+                <p
+                  className='text-left text-[16px] leading-[24px] text-[#000000]'
+                  dangerouslySetInnerHTML={{
+                    __html: cleanDescriptionHtml || ''
+                  }}
+                ></p>
               </div>
             )}
 
             {isEditDescription && (
-              <div
-                className='w-full h-auto rounded-[8px] flex flex-col items-start justify-start gap-[8px]'
-              >
-                <RichTextEditor
-                  id="description"
-                  label="Description"
-                  isRequired={true}
-                  placeholder="Meeting with client..."
-                  isShowLabel={false}
-                  value={''}
-                  onChange={() => {
-
-                  }}
-                />
-                <div className='w-full h-auto flex items-center justify-start gap-[8px] max-w-[200px]'>
-                  <Button
-                    id="taskFormSubmitButton"
-                    htmlType="button"
-                    label="Save"
-                    onClick={() => setIsEditDescription(false)}
-                  />
-                  <Button
-                    id="taskFormSubmitButton"
-                    type='outlined-primary'
-                    htmlType="button"
-                    label="Cancel"
-                    onClick={() => setIsEditDescription(false)}
-                  />
-                </div>
+              <div>
+                <p>Description edit</p>
               </div>
             )}
           </div>
@@ -176,45 +162,13 @@ const TaskDetailModal = ({ onClose }: ComponentProps) => {
             {!isEditDates && (
               <div className='w-full h-auto bg-gray-200 p-[16px]'>
                 <p className='text-left text-[16px] leading-[24px] text-[#000000]'>
-                  15 May 2025 - 16 May 2025
+                  {taskData?.start_date} - {taskData?.end_date}
                 </p>
               </div>
             )}
             {isEditDates && (
-              <div className='w-full h-auto flex flex-col items-start justify-start gap-[8px]'>
-                <div className='w-full h-auto flex flex-col items-start justify-start gap-[8px]'>
-                  <DatePicker
-                    id="start_date"
-                    name="start_date"
-                    label="Start Date"
-                    isRequired={false}
-                    value={''}
-                    onChange={() => { }}
-                  />
-                  <DatePicker
-                    id="end_date"
-                    name="end_date"
-                    label="End Date"
-                    isRequired={false}
-                    value={''}
-                    onChange={() => { }}
-                  />
-                </div>
-                <div className='w-full h-auto flex items-center justify-start gap-[8px] max-w-[200px]'>
-                  <Button
-                    id="taskFormSubmitButton"
-                    htmlType="button"
-                    label="Save"
-                    onClick={() => setIsEditDates(false)}
-                  />
-                  <Button
-                    id="taskFormSubmitButton"
-                    type='outlined-primary'
-                    htmlType="button"
-                    label="Cancel"
-                    onClick={() => setIsEditDates(false)}
-                  />
-                </div>
+              <div>
+                <p>Dates edit</p>
               </div>
             )}
           </div>
@@ -250,46 +204,20 @@ const TaskDetailModal = ({ onClose }: ComponentProps) => {
             </div>
             {!isEditLabel && (
               <div className='w-full h-auto bg-gray-200 p-[16px]'>
-                <p className='text-left text-[16px] leading-[24px] text-[#000000]'>
-                  Label
-                </p>
+                <div className={classNames(
+                  'w-full h-full min-w-[44px] max-w-[44px] min-h-[44px] max-h-[44px] rounded-full',
+                  {
+                    'bg-gray-500': taskData?.label_color == '#62748e',
+                    'bg-green-500': taskData?.label_color == '#00c951',
+                    'bg-red-500': taskData?.label_color == '#fb2c36',
+                    'bg-blue-500': taskData?.label_color == '#2b7fff',
+                  }
+                )}></div>
               </div>
             )}
             {isEditLabel && (
-              <div className='w-full h-auto flex flex-col items-start justify-start gap-[8px]'>
-                <div className='w-full h-auto flex flex-col items-start justify-start gap-[8px]'>
-                  <DatePicker
-                    id="start_date"
-                    name="start_date"
-                    label="Start Date"
-                    isRequired={false}
-                    value={''}
-                    onChange={() => { }}
-                  />
-                  <DatePicker
-                    id="end_date"
-                    name="end_date"
-                    label="End Date"
-                    isRequired={false}
-                    value={''}
-                    onChange={() => { }}
-                  />
-                </div>
-                <div className='w-full h-auto flex items-center justify-start gap-[8px] max-w-[200px]'>
-                  <Button
-                    id="taskFormSubmitButton"
-                    htmlType="button"
-                    label="Save"
-                    onClick={() => setIsEditLabel(false)}
-                  />
-                  <Button
-                    id="taskFormSubmitButton"
-                    type='outlined-primary'
-                    htmlType="button"
-                    label="Cancel"
-                    onClick={() => setIsEditLabel(false)}
-                  />
-                </div>
+              <div>
+                <p>Edit label</p>
               </div>
             )}
           </div>
