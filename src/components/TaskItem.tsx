@@ -2,6 +2,10 @@ import classNames from 'classnames'
 import type React from 'react';
 import CalendarIcon from '../assets/calendar_today_24px_outlined.svg';
 import { fromISOToDateHuge } from '../lib/luxon';
+import { useAppDispatch } from '../hooks';
+import { showSnackbar } from '../lib/redux/features/snackbarSlice';
+import { useEffect, useState } from 'react';
+import { updateTask } from '../services/task.service';
 
 interface ComponentProps {
   data: TaskData;
@@ -19,12 +23,54 @@ interface TaskData {
 }
 
 const TaskItem = ({ data, onClick }: ComponentProps) => {
+  const dispatch = useAppDispatch();
+  const [editTaskDataPayload, setEditTaskDataPayload] = useState<{
+    title?: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    is_done?: boolean;
+    label_color?: string;
+  }>();
+
+  useEffect(() => {
+    if (data) {
+      setEditTaskDataPayload({
+        title: data.title,
+        description: data.description,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        is_done: data.is_done,
+        label_color: data.label_color
+      })
+    }
+  }, [data])
+
   const handleClick = () => {
     onClick(data.id);
   }
 
   const handleClickCheckbox = (event: React.MouseEvent<HTMLInputElement>) => {
     event.stopPropagation()
+  }
+
+  const handleChangeCheckbox = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const { checked } = event.target;
+
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        is_done: checked
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      await updateTask(data?.id || null, { ...updateEditTaskPayload });
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    }
   }
 
   return (
@@ -46,8 +92,9 @@ const TaskItem = ({ data, onClick }: ComponentProps) => {
           <input
             type='checkbox'
             className="w-full h-full min-w-[16px] max-w-[16px] min-h-[16px] max-h-[16px] cursor-pointer pointer-events-auto"
-            checked={data.is_done}
+            checked={editTaskDataPayload?.is_done || false}
             onClick={handleClickCheckbox}
+            onChange={handleChangeCheckbox}
           />
         </div>
 
