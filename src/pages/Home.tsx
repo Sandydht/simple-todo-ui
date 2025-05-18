@@ -9,7 +9,7 @@ import AddIcon from '../assets/add_24px_outlined.svg';
 import { hideConfirmationModalBox, setConfirmationModalBoxLoading, showConfirmationModalBox } from "../lib/redux/features/modalBoxSlice";
 import { useHistory } from "react-router-dom";
 import TaskFormModal from "../components/TaskFormModal";
-import { getTaskList } from "../services/task.service";
+import { deleteTask, getTaskList } from "../services/task.service";
 import TaskDetailModal from "../components/TaskDetailModal";
 
 export interface TaskData {
@@ -136,6 +136,28 @@ const Home = () => {
     fetchTaskList();
   }
 
+  const handleConfirmDeleteTask = async (taskId: number | null) => {
+    try {
+      dispatch(setConfirmationModalBoxLoading(true));
+      const response = await deleteTask(taskId || null);
+      if (response.status == 'OK' && response.message) {
+        dispatch(hideConfirmationModalBox());
+        fetchTaskList();
+        dispatch(showSnackbar({
+          type: 'success',
+          message: response.message
+        }))
+      } 
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      dispatch(setConfirmationModalBoxLoading(false));
+    }
+  }
+
   return (
     <>
       {isShowTaskFormModal && (
@@ -149,6 +171,7 @@ const Home = () => {
         <TaskDetailModal
           taskData={selectedTask}
           onClose={handleCloseTaskDetailModalBox}
+          onDeleteTask={handleConfirmDeleteTask}
         />
       )}
 
