@@ -41,3 +41,35 @@ export const getTaskList = async (): Promise<{
       .catch((error) => reject(error))
   })
 }
+
+export const updateTask = (
+  taskId: number | null,
+  payload: {
+    title?: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    is_done?: boolean;
+    label_color?: string;
+  }
+): Promise<{
+  status: string;
+  data: {
+    id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    end_date: string;
+    is_done: boolean;
+    label_color: string;
+    created_at: string;
+    updated_at: string;
+  }
+}> => {
+  return new Promise((resolve, reject) => {
+    axiosPrivateService
+      .patch(`/task/update-task/${taskId}`, { ...payload })
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error))
+  })
+}

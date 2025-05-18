@@ -4,9 +4,10 @@ interface ComponentProps {
   isRequired: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: any;
+  defaultValue?: string;
 }
 
-const DatePicker = ({ id, label, isRequired, register }: ComponentProps) => {
+const DatePicker = ({ id, label, isRequired, register, defaultValue }: ComponentProps) => {
   return (
     <div className="w-full h-auto flex flex-col items-start justify-start gap-[4px]">
       <label
@@ -22,6 +23,7 @@ const DatePicker = ({ id, label, isRequired, register }: ComponentProps) => {
         {...register(id, {
           required: isRequired
         })}
+        defaultValue={defaultValue}
       />
     </div>
   )

@@ -131,6 +131,11 @@ const Home = () => {
     return task || null;
   }
 
+  const handleCloseTaskDetailModalBox = () => {
+    setIsShowTaskDetailModal(false)
+    fetchTaskList();
+  }
+
   return (
     <>
       {isShowTaskFormModal && (
@@ -143,7 +148,7 @@ const Home = () => {
       {isShowTaskDetailModal && (
         <TaskDetailModal
           taskData={selectedTask}
-          onClose={() => setIsShowTaskDetailModal(false)}
+          onClose={handleCloseTaskDetailModalBox}
         />
       )}
 

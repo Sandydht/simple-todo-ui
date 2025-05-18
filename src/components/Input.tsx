@@ -1,3 +1,5 @@
+import type React from "react";
+
 interface ComponentProps {
   id: string;
   label: string;
@@ -5,17 +7,23 @@ interface ComponentProps {
   placeholder?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: any;
+  showLabel?: boolean;
+  defaultValue?: string;
+  autoFocus?: boolean;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const Input = ({ id, label, isRequired, placeholder, register }: ComponentProps) => {
+const Input = ({ id, label, isRequired, placeholder, register, showLabel = true, defaultValue, autoFocus = false, onKeyDown }: ComponentProps) => {
   return (
     <div className="w-full h-auto flex flex-col items-start justify-start gap-[4px]">
-      <label
-        htmlFor={id}
-        className="text-left text-[14px] leading-[20px] text-[#000000] font-semibold"
-      >
-        {label} {isRequired && <span className="text-red-500">*</span>}
-      </label>
+      {showLabel && (
+        <label
+          htmlFor={id}
+          className="text-left text-[14px] leading-[20px] text-[#000000] font-semibold"
+        >
+          {label} {isRequired && <span className="text-red-500">*</span>}
+        </label>
+      )}
       <input
         id={id}
         type="text"
@@ -24,6 +32,9 @@ const Input = ({ id, label, isRequired, placeholder, register }: ComponentProps)
         {...register(id, {
           required: isRequired
         })}
+        defaultValue={defaultValue}
+        autoFocus={autoFocus}
+        onKeyDown={onKeyDown}
       />
     </div>
   )
