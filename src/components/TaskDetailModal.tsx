@@ -14,6 +14,7 @@ import EditTaskDescriptionInput from './EditTaskDescriptionInput';
 import { useAppDispatch } from '../hooks';
 import { showSnackbar } from '../lib/redux/features/snackbarSlice';
 import EditTaskDatesInput from './EditTaskDatesInput';
+import EditTaskLabelInput from './EditTaskLabelInput';
 
 interface ComponentProps {
   taskData: TaskData | null;
@@ -160,6 +161,30 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
       const response = await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
       if (response.status == 'OK' && response.data) {
         setIsEditDates(false);
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      setUpdateDataLoading(false)
+    }
+  }
+
+  const handleSaveEditTaskLabel = async (payload: { label_color: string }) => {
+    try {
+      setUpdateDataLoading(true)
+
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        label_color: payload.label_color,
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      const response = await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+      if (response.status == 'OK' && response.data) {
+        setIsEditLabel(false);
       }
     } catch (error) {
       dispatch(showSnackbar({
@@ -369,17 +394,22 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
                 <div className={classNames(
                   'w-full h-full min-w-[44px] max-w-[44px] min-h-[44px] max-h-[44px] rounded-full',
                   {
-                    'bg-gray-500': taskData?.label_color == '#62748e',
-                    'bg-green-500': taskData?.label_color == '#00c951',
-                    'bg-red-500': taskData?.label_color == '#fb2c36',
-                    'bg-blue-500': taskData?.label_color == '#2b7fff',
+                    'bg-gray-500': editTaskDataPayload?.label_color == '#62748e',
+                    'bg-green-500': editTaskDataPayload?.label_color == '#00c951',
+                    'bg-red-500': editTaskDataPayload?.label_color == '#fb2c36',
+                    'bg-blue-500': editTaskDataPayload?.label_color == '#2b7fff',
                   }
                 )}></div>
               </div>
             )}
             {isEditLabel && (
-              <div>
-                <p>Edit label</p>
+              <div className='w-full h-auto'>
+                <EditTaskLabelInput
+                  onCancel={() => setIsEditLabel(false)}
+                  onSave={handleSaveEditTaskLabel}
+                  defaultValue={editTaskDataPayload?.label_color || ''}
+                  isLoading={updateDataLoading}
+                />
               </div>
             )}
           </div>

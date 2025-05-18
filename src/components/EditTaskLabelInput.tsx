@@ -1,50 +1,47 @@
 import { useForm } from "react-hook-form";
 import Button from "./Button"
-import RichTextEditor from "./RichTextEditor";
+import ColorPicker from "./ColorPicker";
+
+type FormValues = {
+  label_color: string;
+};
 
 interface ComponentProps {
   onCancel: () => void;
+  onSave: (data: FormValues) => void;
   defaultValue: string;
   isLoading: boolean;
-  onSubmitUpdate: (data: FormValues) => void;
 }
 
-type FormValues = {
-  description: string;
-};
-
-const EditTaskDescriptionInput = ({ onCancel, defaultValue, isLoading, onSubmitUpdate }: ComponentProps) => {
+const EditTaskLabelInput = ({ onCancel, onSave, defaultValue, isLoading }: ComponentProps) => {
   const { handleSubmit, reset, watch, control } = useForm<FormValues>();
-  
+
   const onSubmit = (data: FormValues) => {
-    onSubmitUpdate(data)
+    onSave(data);
     reset();
   }
 
   const disabledSaveButton = () => Boolean(
-    watch('description') == '' ||
-    watch('description') == defaultValue
+    watch('label_color') == '' ||
+    watch('label_color') == defaultValue
   )
 
   return (
-    <form 
+    <form
       className="w-full h-auto flex flex-col items-start justify-start gap-[8px]"
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="w-full h-auto">
-        <RichTextEditor
-          id="description"
-          label="Description"
+        <ColorPicker
+          id="label_color"
+          label="Tag Label"
           isRequired={true}
-          placeholder="Meeting with client..."
           control={control}
-          defaultValue={defaultValue}
-          isShowLabel={false}
         />
       </div>
       <div className="w-full h-auto flex items-center justify-start gap-[8px] max-w-[200px]">
         <Button
-          id="saveUpdateDescriptionButton"
+          id="saveUpdateLabelButton"
           type="primary"
           htmlType="submit"
           label="Save"
@@ -52,7 +49,7 @@ const EditTaskDescriptionInput = ({ onCancel, defaultValue, isLoading, onSubmitU
           isLoading={isLoading}
         />
         <Button
-          id="cancelUpdateDescriptionButton"
+          id="cancelUpdateLabelButton"
           type="outlined-primary"
           htmlType="button"
           label="Cancel"
@@ -63,4 +60,4 @@ const EditTaskDescriptionInput = ({ onCancel, defaultValue, isLoading, onSubmitU
   )
 }
 
-export default EditTaskDescriptionInput
+export default EditTaskLabelInput
