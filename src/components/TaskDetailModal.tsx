@@ -13,6 +13,7 @@ import { fromISOToDateHuge } from '../lib/luxon';
 import EditTaskDescriptionInput from './EditTaskDescriptionInput';
 import { useAppDispatch } from '../hooks';
 import { showSnackbar } from '../lib/redux/features/snackbarSlice';
+import EditTaskDatesInput from './EditTaskDatesInput';
 
 interface ComponentProps {
   taskData: TaskData | null;
@@ -134,6 +135,31 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
         setIsEditDescription(false);
         const cleanHtml = DOMPurify.sanitize(updateEditTaskPayload?.description)
         setCleanDescriptionHtml(cleanHtml)
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      setUpdateDataLoading(false)
+    }
+  }
+
+  const handleSaveEditDates = async (payload: { start_date: string; end_date: string }) => {
+    try {
+      setUpdateDataLoading(true)
+
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        start_date: payload.start_date,
+        end_date: payload.end_date
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      const response = await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+      if (response.status == 'OK' && response.data) {
+        setIsEditDates(false);
       }
     } catch (error) {
       dispatch(showSnackbar({
@@ -292,13 +318,19 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
             {!isEditDates && (
               <div className='w-full h-auto bg-gray-200 p-[16px]'>
                 <p className='text-left text-[16px] leading-[24px] text-[#000000]'>
-                  {fromISOToDateHuge(taskData?.start_date || '')} - {fromISOToDateHuge(taskData?.end_date || '')}
+                  {fromISOToDateHuge(editTaskDataPayload?.start_date || '')} - {fromISOToDateHuge(editTaskDataPayload?.end_date || '')}
                 </p>
               </div>
             )}
             {isEditDates && (
-              <div>
-                <p>Dates edit</p>
+              <div className='w-full h-auto'>
+                <EditTaskDatesInput
+                  onCancel={() => setIsEditDates(false)}
+                  start_date={editTaskDataPayload?.start_date || ''}
+                  end_date={editTaskDataPayload?.end_date || ''}
+                  onSave={handleSaveEditDates}
+                  isLoading={updateDataLoading}
+                />
               </div>
             )}
           </div>
