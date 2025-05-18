@@ -80,11 +80,17 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutsideEditTitle);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleClickOutsideEditTitle = (event: MouseEvent) => {
+  const handleClickOutsideEditTitle = async (event: MouseEvent) => {
     const target = event.target as Node;
+
     if (editTitleRef.current && !editTitleRef.current?.contains(target)) {
+      if (editTaskDataPayload?.title) {
+        await handleUpdateTaskTitle();
+      }
+
       setIsEditTitle(false)
     }
   }
@@ -109,12 +115,18 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     }
   }
 
-  useEffect(() => {
-    if (!isEditTitle) {
-      handleUpdateTaskTitle()
+  const handleKeyDownTaskTitle = async (data: string) => {
+    const updateEditTaskPayload = {
+      ...editTaskDataPayload,
+      title: data
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditTitle])
+
+    setEditTaskDataPayload(updateEditTaskPayload);
+    const response = await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+    if (response.status == 'OK' && response.data) {
+      setIsEditTitle(false);
+    }
+  }
 
   const handleSubmitUpdateDescription = async (data: { description: string }) => {
     try {
@@ -178,8 +190,9 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
                   className='w-full h-auto'
                 >
                   <EditTaskTitleInput
-                    defaultValue={taskData?.title || ''}
+                    defaultValue={editTaskDataPayload?.title || ''}
                     onChangeInput={handleOnChangeInputTitle}
+                    onKeyDown={handleKeyDownTaskTitle}
                   />
                 </div>
               )}

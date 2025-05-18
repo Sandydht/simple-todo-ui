@@ -1,3 +1,5 @@
+import type React from "react";
+
 interface ComponentProps {
   id: string;
   label: string;
@@ -8,9 +10,10 @@ interface ComponentProps {
   showLabel?: boolean;
   defaultValue?: string;
   autoFocus?: boolean;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const Input = ({ id, label, isRequired, placeholder, register, showLabel = true, defaultValue, autoFocus = false }: ComponentProps) => {
+const Input = ({ id, label, isRequired, placeholder, register, showLabel = true, defaultValue, autoFocus = false, onKeyDown }: ComponentProps) => {
   return (
     <div className="w-full h-auto flex flex-col items-start justify-start gap-[4px]">
       {showLabel && (
@@ -31,6 +34,7 @@ const Input = ({ id, label, isRequired, placeholder, register, showLabel = true,
         })}
         defaultValue={defaultValue}
         autoFocus={autoFocus}
+        onKeyDown={onKeyDown}
       />
     </div>
   )
