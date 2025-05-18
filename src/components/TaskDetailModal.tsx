@@ -15,13 +15,15 @@ import { useAppDispatch } from '../hooks';
 import { showSnackbar } from '../lib/redux/features/snackbarSlice';
 import EditTaskDatesInput from './EditTaskDatesInput';
 import EditTaskLabelInput from './EditTaskLabelInput';
+import { hideConfirmationModalBox, showConfirmationModalBox } from '../lib/redux/features/modalBoxSlice';
 
 interface ComponentProps {
   taskData: TaskData | null;
   onClose: () => void;
+  onDeleteTask: (taskId: number | null) => void;
 }
 
-const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
+const TaskDetailModal = ({ taskData, onClose, onDeleteTask }: ComponentProps) => {
   const [isEditTitle, setIsEditTitle] = useState<boolean>(false);
   const [isEditDescription, setIsEditDescription] = useState<boolean>(false);
   const [isEditDates, setIsEditDates] = useState<boolean>(false);
@@ -196,8 +198,22 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     }
   }
 
+  const handleOpenDeleteConfirmationModalBox = () => {
+    onClose()
+    dispatch(showConfirmationModalBox({
+      title: 'Delete Confirmation',
+      description: 'Are you sure you want to delete this task?',
+      onCancel: () => {
+        dispatch(hideConfirmationModalBox());
+      },
+      onConfirm: () => {
+        onDeleteTask(taskData?.id || null);
+      }
+    }))
+  }
+
   return (
-    <div className="fixed left-0 top-0 right-0 bottom-0 z-50">
+    <div className="fixed left-0 top-0 right-0 bottom-0 z-40">
       <div className="absolute left-0 top-0 right-0 bottom-0 bg-black opacity-60"></div>
 
       <div className="absolute left-0 top-0 right-0 bottom-0 flex items-start justify-center p-[25px] overflow-y-auto">
@@ -412,6 +428,17 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
                 />
               </div>
             )}
+          </div>
+
+          {/* Delete button */}
+          <div className='w-full h-auto'>
+            <Button
+              id={'deleteTaskButton'}
+              htmlType={'button'}
+              label={'Delete'}
+              type='danger'
+              onClick={handleOpenDeleteConfirmationModalBox}
+            />
           </div>
         </div>
       </div>

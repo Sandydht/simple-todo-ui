@@ -73,3 +73,15 @@ export const updateTask = (
       .catch((error) => reject(error))
   })
 }
+
+export const deleteTask = (taskId: number | null): Promise<{
+  status: string;
+  message: string;
+}> => {
+  return new Promise((resolve, reject) => {
+    axiosPrivateService
+      .delete(`/task/delete-task/${taskId}`)
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error))
+  })
+}

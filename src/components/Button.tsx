@@ -1,6 +1,6 @@
 interface ComponentProps {
   id: string;
-  type?: 'primary' | 'outlined-primary';
+  type?: 'primary' | 'outlined-primary' | 'danger';
   htmlType: 'button' | 'submit';
   label: string;
   isLoading?: boolean;
@@ -41,6 +41,19 @@ const Button = ({ id, type = 'primary', htmlType, label, isLoading, disabled, on
         id={id}
         type={htmlType}
         className="w-full h-auto rounded-[8px] px-[20px] py-[10px] border-[1px] border-blue-500 cursor-pointer text-center text-[14px] leading-[20px] text-blue-500 font-semibold transition-all hover:bg-gray-100"
+        onClick={onClick}
+      >
+        {label}
+      </button>
+    )
+  }
+
+  if (type == 'danger') {
+    return (
+      <button
+        id={id}
+        type={htmlType}
+        className="w-full h-auto rounded-[8px] px-[20px] py-[10px] bg-red-500 cursor-pointer text-center text-[14px] leading-[20px] text-white font-semibold transition-all hover:bg-red-600"
         onClick={onClick}
       >
         {label}
