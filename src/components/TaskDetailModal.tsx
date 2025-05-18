@@ -80,33 +80,25 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutsideEditTitle);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleClickOutsideEditTitle = async (event: MouseEvent) => {
     const target = event.target as Node;
 
     if (editTitleRef.current && !editTitleRef.current?.contains(target)) {
-      if (editTaskDataPayload?.title) {
-        await handleUpdateTaskTitle();
-      }
-
       setIsEditTitle(false)
     }
   }
 
-  const handleOnChangeInputTitle = (data: string) => {
-    const updateEditTaskPayload = {
-      ...editTaskDataPayload,
-      title: data
-    }
-
-    setEditTaskDataPayload(updateEditTaskPayload);
-  }
-
-  const handleUpdateTaskTitle = async () => {
+  const handleOnChangeInputTitle = async (data: string) => {
     try {
-      await updateTask(taskData?.id || null, { ...editTaskDataPayload });
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        title: data
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
     } catch (error) {
       dispatch(showSnackbar({
         type: 'error',
@@ -179,7 +171,7 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
                   onClick={() => setIsEditTitle(true)}
                 >
                   <p className='text-left text-[24px] leading-[32px] text-[#000000] font-semibold'>
-                    {editTaskDataPayload?.title}
+                    {editTaskDataPayload?.title || '-'}
                   </p>
                 </div>
               )}

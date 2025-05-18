@@ -17,7 +17,9 @@ const EditTaskTitleInput = ({ defaultValue, onChangeInput, onKeyDown }: Componen
   const { register, watch } = useForm<FormValues>();
 
   useEffect(() => {
-    onChangeInput(watch('title'));
+    setTimeout(() => {
+      onChangeInput(watch('title'));
+    }, 500)
   }, [watch('title')])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
