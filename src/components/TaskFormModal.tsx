@@ -10,6 +10,7 @@ import { useAppDispatch } from "../hooks";
 import { showSnackbar } from "../lib/redux/features/snackbarSlice";
 import { createTask } from "../services/task.service";
 import { useState } from "react";
+import { fromISOToLocale } from "../lib/luxon";
 
 interface ComponentProps {
   onClose: () => void;
@@ -35,12 +36,24 @@ const TaskFormModal = ({ onClose, onSuccessCreatedTask }: ComponentProps) => {
     watch('description') == '' ||
     watch('start_date') == '' ||
     watch('end_date') == '' ||
-    watch('label_color') == ''
+    watch('label_color') == '' ||
+    watch('label_color') == undefined ||
+    watch('is_done') == undefined
   )
 
   const onSubmit = async (data: FormValues) => {
     try {
       setIsLoading(true);
+
+      const startDate = fromISOToLocale(data.start_date);
+      const endDate = fromISOToLocale(data.end_date);
+
+      data = {
+        ...data,
+        start_date: startDate,
+        end_date: endDate
+      }
+
       const response = await createTask(data);
       if (response.status == 'OK' && response.data) {
         dispatch(showSnackbar({

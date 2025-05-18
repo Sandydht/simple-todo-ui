@@ -1,6 +1,7 @@
 import classNames from 'classnames'
 import type React from 'react';
 import CalendarIcon from '../assets/calendar_today_24px_outlined.svg';
+import { fromISOToDateHuge } from '../lib/luxon';
 
 interface ComponentProps {
   data: TaskData;
@@ -70,7 +71,7 @@ const TaskItem = ({ data, onClick }: ComponentProps) => {
             </div>
             <div className='w-full h-auto'>
               <p className='text-left text-[14px] leading-[20px] text-[#000000]'>
-                {data.start_date} - {data.end_date}
+                {fromISOToDateHuge(data.start_date)} - {fromISOToDateHuge(data.end_date)}
               </p>
             </div>
           </div>
