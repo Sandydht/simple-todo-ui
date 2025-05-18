@@ -52,7 +52,20 @@ export const updateTask = (
     is_done?: boolean;
     label_color?: string;
   }
-) => {
+): Promise<{
+  status: string;
+  data: {
+    id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    end_date: string;
+    is_done: boolean;
+    label_color: string;
+    created_at: string;
+    updated_at: string;
+  }
+}> => {
   return new Promise((resolve, reject) => {
     axiosPrivateService
       .patch(`/task/update-task/${taskId}`, { ...payload })

@@ -9,6 +9,10 @@ import DOMPurify from 'dompurify';
 import classNames from 'classnames'
 import { updateTask } from '../services/task.service';
 import EditTaskTitleInput from './EditTaskTitleInput';
+import { fromISOToDateHuge } from '../lib/luxon';
+import EditTaskDescriptionInput from './EditTaskDescriptionInput';
+import { useAppDispatch } from '../hooks';
+import { showSnackbar } from '../lib/redux/features/snackbarSlice';
 
 interface ComponentProps {
   taskData: TaskData | null;
@@ -30,6 +34,8 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     label_color?: string;
   }>();
   const editTitleRef = useRef<HTMLDivElement | null>(null);
+  const [updateDataLoading, setUpdateDataLoading] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (taskData) {
@@ -50,15 +56,22 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
   }, [taskData])
 
   const handleEditIsDone = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target;
+    try {
+      const { checked } = event.target;
 
-    const updateEditTaskPayload = {
-      ...editTaskDataPayload,
-      is_done: checked
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        is_done: checked
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
     }
-
-    setEditTaskDataPayload(updateEditTaskPayload);
-    await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
   }
 
   useEffect(() => {
@@ -85,16 +98,48 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
     setEditTaskDataPayload(updateEditTaskPayload);
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleUpdateTaskTitle = async () => {
-    await updateTask(taskData?.id || null, { ...editTaskDataPayload });
+    try {
+      await updateTask(taskData?.id || null, { ...editTaskDataPayload });
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    }
   }
 
   useEffect(() => {
     if (!isEditTitle) {
       handleUpdateTaskTitle()
     }
-  }, [handleUpdateTaskTitle, isEditTitle])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditTitle])
+
+  const handleSubmitUpdateDescription = async (data: { description: string }) => {
+    try {
+      setUpdateDataLoading(true)
+      const updateEditTaskPayload = {
+        ...editTaskDataPayload,
+        description: data.description
+      }
+
+      setEditTaskDataPayload(updateEditTaskPayload);
+      const response = await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+      if (response.status == 'OK' && response.data) {
+        setIsEditDescription(false);
+        const cleanHtml = DOMPurify.sanitize(updateEditTaskPayload?.description)
+        setCleanDescriptionHtml(cleanHtml)
+      }
+    } catch (error) {
+      dispatch(showSnackbar({
+        type: 'error',
+        message: error
+      }))
+    } finally {
+      setUpdateDataLoading(false)
+    }
+  }
 
   return (
     <div className="fixed left-0 top-0 right-0 bottom-0 z-50">
@@ -199,8 +244,13 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
             )}
 
             {isEditDescription && (
-              <div>
-                <p>Description edit</p>
+              <div className='w-full h-auto'>
+                <EditTaskDescriptionInput
+                  onCancel={() => setIsEditDescription(false)}
+                  defaultValue={editTaskDataPayload?.description || ''}
+                  isLoading={updateDataLoading}
+                  onSubmitUpdate={handleSubmitUpdateDescription}
+                />
               </div>
             )}
           </div>
@@ -237,7 +287,7 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
             {!isEditDates && (
               <div className='w-full h-auto bg-gray-200 p-[16px]'>
                 <p className='text-left text-[16px] leading-[24px] text-[#000000]'>
-                  {taskData?.start_date} - {taskData?.end_date}
+                  {fromISOToDateHuge(taskData?.start_date || '')} - {fromISOToDateHuge(taskData?.end_date || '')}
                 </p>
               </div>
             )}

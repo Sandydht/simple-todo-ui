@@ -11,6 +11,7 @@ interface ComponentProps {
   isShowLabel?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: any;
+  defaultValue?: string;
 }
 
 const CustomStyleReactQuill = styled(ReactQuill)`
@@ -40,7 +41,7 @@ const CustomStyleReactQuill = styled(ReactQuill)`
   }
 `;
 
-const RichTextEditor = ({ id, label, isRequired, placeholder, isShowLabel = true, control }: ComponentProps) => {
+const RichTextEditor = ({ id, label, isRequired, placeholder, isShowLabel = true, control, defaultValue }: ComponentProps) => {
   return (
     <div className="w-full h-auto flex flex-col items-start justify-start gap-[4px]">
       {isShowLabel && (
@@ -62,6 +63,7 @@ const RichTextEditor = ({ id, label, isRequired, placeholder, isShowLabel = true
             onChange={field.onChange}
           />
         )}
+        defaultValue={defaultValue}
       />
     </div>
   )
