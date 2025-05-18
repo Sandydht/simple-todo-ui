@@ -3,10 +3,12 @@ import NotesIcon from '../assets/notes_24px_outlined.svg';
 import Button from './Button';
 import CalendarIcon from '../assets/calendar_today_24px_outlined.svg';
 import LabelIcon from '../assets/label_24px_outlined.svg';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { TaskData } from '../pages/Home';
 import DOMPurify from 'dompurify';
 import classNames from 'classnames'
+import { updateTask } from '../services/task.service';
+import EditTaskTitleInput from './EditTaskTitleInput';
 
 interface ComponentProps {
   taskData: TaskData | null;
@@ -19,13 +21,80 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
   const [isEditDates, setIsEditDates] = useState<boolean>(false);
   const [isEditLabel, setIsEditLabel] = useState<boolean>(false);
   const [cleanDescriptionHtml, setCleanDescriptionHtml] = useState<string | TrustedHTML>();
+  const [editTaskDataPayload, setEditTaskDataPayload] = useState<{
+    title?: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    is_done?: boolean;
+    label_color?: string;
+  }>();
+  const editTitleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (taskData) {
+      setEditTaskDataPayload({
+        title: taskData.title,
+        description: taskData.description,
+        start_date: taskData.start_date,
+        end_date: taskData.end_date,
+        is_done: taskData.is_done,
+        label_color: taskData.label_color
+      })
+    }
+
     if (taskData?.description) {
       const cleanHtml = DOMPurify.sanitize(taskData?.description)
       setCleanDescriptionHtml(cleanHtml)
     }
   }, [taskData])
+
+  const handleEditIsDone = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+
+    const updateEditTaskPayload = {
+      ...editTaskDataPayload,
+      is_done: checked
+    }
+
+    setEditTaskDataPayload(updateEditTaskPayload);
+    await updateTask(taskData?.id || null, { ...updateEditTaskPayload });
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutsideEditTitle);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideEditTitle);
+    }
+  }, [])
+
+  const handleClickOutsideEditTitle = (event: MouseEvent) => {
+    const target = event.target as Node;
+    if (editTitleRef.current && !editTitleRef.current?.contains(target)) {
+      setIsEditTitle(false)
+    }
+  }
+
+  const handleOnChangeInputTitle = (data: string) => {
+    const updateEditTaskPayload = {
+      ...editTaskDataPayload,
+      title: data
+    }
+
+    setEditTaskDataPayload(updateEditTaskPayload);
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleUpdateTaskTitle = async () => {
+    await updateTask(taskData?.id || null, { ...editTaskDataPayload });
+  }
+
+  useEffect(() => {
+    if (!isEditTitle) {
+      handleUpdateTaskTitle()
+    }
+  }, [handleUpdateTaskTitle, isEditTitle])
 
   return (
     <div className="fixed left-0 top-0 right-0 bottom-0 z-50">
@@ -38,29 +107,35 @@ const TaskDetailModal = ({ taskData, onClose }: ComponentProps) => {
             <div className="w-full h-auto flex items-center justify-start gap-[16px]">
               <div className="w-auto h-auto flex items-center justify-center max-w-[24px] min-w-[24px]">
                 <input
+                  id='is_done'
+                  name='is_done'
                   type='checkbox'
                   className="w-full h-full min-w-[16px] max-w-[16px] min-h-[16px] max-h-[16px] cursor-pointer pointer-events-auto"
+                  checked={editTaskDataPayload?.is_done || false}
+                  onChange={handleEditIsDone}
                 />
               </div>
+
               {!isEditTitle && (
                 <div
                   className="w-full h-auto"
                   onClick={() => setIsEditTitle(true)}
                 >
                   <p className='text-left text-[24px] leading-[32px] text-[#000000] font-semibold'>
-                    {taskData?.title}
+                    {editTaskDataPayload?.title}
                   </p>
                 </div>
               )}
 
               {isEditTitle && (
                 <div
-                  className="w-full h-auto"
-                  onClick={() => setIsEditTitle(false)}
+                  ref={editTitleRef}
+                  className='w-full h-auto'
                 >
-                  <p className='text-left text-[24px] leading-[32px] text-[#000000] font-semibold'>
-                    Edit
-                  </p>
+                  <EditTaskTitleInput
+                    defaultValue={taskData?.title || ''}
+                    onChangeInput={handleOnChangeInputTitle}
+                  />
                 </div>
               )}
             </div>

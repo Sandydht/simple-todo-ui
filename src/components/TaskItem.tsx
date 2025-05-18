@@ -33,7 +33,7 @@ const TaskItem = ({ data, onClick }: ComponentProps) => {
       className={classNames(
         'w-full h-auto border-[1.5px] rounded-[8px] flex flex-col items-start justify-start gap-[4px] cursor-pointer transition-all duration-500 px-[20px] py-[10px] hover:py-[15px]',
         {
-          'border-[#62748e] bg-gray-100': data.label_color == '#62748e',
+          'border-[#62748e] bg-gray-200': data.label_color == '#62748e',
           'border-[#00c951] bg-green-100': data.label_color == '#00c951',
           'border-[#fb2c36] bg-red-100': data.label_color == '#fb2c36',
           'border-[#2b7fff] bg-blue-100': data.label_color == '#2b7fff',
