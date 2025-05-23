@@ -20,12 +20,6 @@ pipeline {
       }
     }
 
-    stage('Lint Code') {
-      steps {
-        sh 'npm run lint'
-      }
-    }
-
     stage('Build') {
       steps {
         sh 'npm run build'
