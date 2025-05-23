@@ -35,6 +35,12 @@ pipeline {
       }
     }
 
+    stage('Build') {
+      steps: {
+        sb 'npm run build'
+      }
+    }
+
   }
 
   post {
