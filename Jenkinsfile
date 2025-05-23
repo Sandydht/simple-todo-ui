@@ -1,9 +1,5 @@
 pipeline {
-  agent {
-    dockerContainer {
-      image 'node:18'
-    }
-  }
+  agent any
 
   environment {
     NODE_ENV = "production"
