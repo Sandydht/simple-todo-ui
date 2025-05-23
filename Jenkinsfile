@@ -36,8 +36,8 @@ pipeline {
     }
 
     stage('Build') {
-      steps: {
-        sb 'npm run build'
+      steps {
+        sh 'npm run build'
       }
     }
 
