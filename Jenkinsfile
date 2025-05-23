@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     NODE_ENV = "production"
+    PATH = "/usr/local/bin:/usr/bin:${env.PATH}"
   }
 
   stages {
