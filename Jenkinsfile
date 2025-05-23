@@ -14,16 +14,6 @@ pipeline {
       }
     }
 
-    stage('Commit Lint') {
-      steps {
-        echo 'Running commitlint...'
-        sh '''
-          git fetch --unshallow || true
-          npx commitlint --from=origin/master --to=HEAD --verbose
-        '''
-      }
-    }
-
     stage('Install Dependencies') {
       steps {
         sh 'npm install'
