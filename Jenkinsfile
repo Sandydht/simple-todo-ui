@@ -2,7 +2,8 @@ pipeline {
   agent any
 
   environment {
-    NODE_ENV = 'development'
+    NODE_ENV = "production"
+    PATH = "/usr/bin:$PATH"
   }
 
   stages {
