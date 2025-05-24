@@ -3,11 +3,10 @@ pipeline {
 
   environment {
     NODE_ENV = "production"
-    PATH = "./node_modules/.bin:/usr/local/bin:/usr/bin:${env.PATH}"
+    PATH = "./node_modules/"
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm
